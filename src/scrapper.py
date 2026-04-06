@@ -20,7 +20,6 @@ product_url = "https://books.toscrape.com/catalogue/candide_316/index.html"
 def scrap_product_page(product_url):
     response = requests.get(product_url)
     if response.status_code == 200:
-        print("Page fetched successfully!")
         #print(response.text)  # Print the HTML content of the page
         return response.text
     else:
