@@ -66,31 +66,59 @@ class Parser:
         return ""
     
 
+    def get_availability(self, parsed_table) -> str:
+        """Get the availability from the parsed table."""
+        for header, value in parsed_table:
+            if header == "Availability":
+                return self.get_number_in_stock(value)
+        return ""
+
+    def get_upc(self, parsed_table) -> str:
+        """Get the UPC from the parsed table."""
+        for header, value in parsed_table:
+            if header == "UPC":
+                return value
+        return ""
+    
+    def get_price_including_tax(self, parsed_table) -> str:
+        """Get the price including tax from the parsed table."""
+        for header, value in parsed_table:
+            if header == "Price (incl. tax)":
+                return value.replace("Â", "")
+        return ""
+
+    def get_price_excluding_tax(self, parsed_table) -> str:
+        """Get the price excluding tax from the parsed table."""
+        for header, value in parsed_table:
+            if header == "Price (excl. tax)":
+                return value.replace("Â", "")
+        return ""
+    
+    def get_review_rating(self) -> str:
+        """Get the review rating from the HTML content."""
+        rating_element = self.soup.find('p', class_='star-rating')
+        if rating_element:
+            classes = rating_element['class']
+            for cls in classes:
+                if cls != 'star-rating':
+                    return cls
+        return ""
+
     def parse(self) -> Dict:
         """Get the product information from the HTML content."""
         table_data = self.get_data_from_inclass("table table-striped")
         # UPC / Product Type / Price (excl. tax) / Price (incl. tax) / Tax / Availability / Number of reviews
         product_info = {}
-        if table_data:
-            parsed_table = self.parse_table(table_data)
-            for header, value in parsed_table:
-                if header == "Availability":
-                    header = "quantity_available"
-                    product_info[header] = self.get_number_in_stock(value)
-                if header == "Price (incl. tax)":
-                    header = "price_including_tax"
-                    product_info[header] = value
-                elif header == "Price (excl. tax)":
-                    header = "price_excluding_tax"
-                    product_info[header] = value
-                else:
-                    product_info[header] = value
-        product_info["category"] = self.get_category()
+        parsed_table = self.parse_table(table_data)
         product_info["product_page_url"] = self.url
-        product_info["product_description"] = self.get_description()
+        product_info["universal_product_code"] = self.get_upc(parsed_table)
         product_info["book_title"] = self.get_title()
+        product_info["price_including_tax"] = self.get_price_including_tax(parsed_table)
+        product_info["price_excluding_tax"] = self.get_price_excluding_tax(parsed_table)
+        product_info["quantity_available"] = self.get_availability(parsed_table)
+        product_info["product_description"] = self.get_description()
+        product_info["category"] = self.get_category()
+        product_info["review_rating"] = self.get_review_rating()
         product_info["image_url"] = self.get_image_url()
-        
-
 
         return product_info
