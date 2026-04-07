@@ -1,14 +1,18 @@
 from bs4 import BeautifulSoup
 from typing import List, Tuple, Dict
+from pathlib import Path
+from urllib.parse import urljoin, urlparse
+import requests
+
 
 class Parser:
     def __init__(self, html_content, url):
         self.html_content = html_content
         self.url = url
+        self.soup = BeautifulSoup(self.html_content, 'html.parser')
 
     def get_data_from_inclass(self, class_name: str):
         """Get the data from the HTML content based on the class name."""
-        self.soup = BeautifulSoup(self.html_content, 'html.parser')
         element = self.soup.find(class_=class_name)
         return element
 
@@ -122,3 +126,21 @@ class Parser:
         product_info["image_url"] = self.get_image_url()
 
         return product_info
+
+
+    def download_image(self, folder: Path) -> str:
+        """Download the image """
+        image_url = self.get_image_url()
+        if not image_url:
+            return ""
+        absolute_image_url = urljoin(self.url, image_url)
+        # Download the image and save it to the specified folder
+        response = requests.get(absolute_image_url)
+        if response.status_code == 200:
+            folder.mkdir(parents=True, exist_ok=True)
+            image_name = f"{self.get_title()}.jpg"
+            image_path = folder / image_name
+            with open(image_path, 'wb') as f:
+                f.write(response.content)
+            return str(image_path)
+        return ""

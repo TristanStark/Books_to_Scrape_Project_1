@@ -10,4 +10,5 @@ wheels/
 .venv
 Project 1.pdf
 Python_P2_EN_Requirements.pdf
-product_info.csv
+*.csv
+images/

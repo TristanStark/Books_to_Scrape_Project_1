@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from typing import List
+from urllib.parse import urljoin
 from src.scrapper import scrap_product_page
 
 
@@ -32,8 +33,7 @@ class CategoryParser:
         next_page_link = self.soup.find('li', class_='next')
         if next_page_link:
             relative_url = next_page_link.find('a')['href']
-            base_url = self.url.rsplit('/', 1)[0]  # Get the base URL
-            return f"{base_url}/{relative_url}"
+            return urljoin(self.url, relative_url)
         return ""
     
     def get_all_articles(self):
@@ -44,8 +44,7 @@ class CategoryParser:
         product_urls = []
         for article in articles:
             product_url = article.find('h3').find('a')['href']
-            product_url = product_url.replace('../../../', 'https://books.toscrape.com/catalogue/')
-            product_urls.append(product_url)
+            product_urls.append(urljoin(self.url, product_url))
         
         if not self.is_last_page():
             new_url = self.get_next_page()
@@ -54,3 +53,4 @@ class CategoryParser:
             product_urls.extend(new_parser.get_all_articles())
         
         return product_urls
+
