@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from typing import List, Tuple, Dict
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 import requests
 
 
@@ -139,6 +139,8 @@ class Parser:
         if response.status_code == 200:
             folder.mkdir(parents=True, exist_ok=True)
             image_name = f"{self.get_title()}.jpg"
+            # We normalize the image name to avoid issues with special characters in file names
+            image_name = "".join(c for c in image_name if c.isalnum() or c in (' ', '.', '_')).rstrip()
             image_path = folder / image_name
             with open(image_path, 'wb') as f:
                 f.write(response.content)

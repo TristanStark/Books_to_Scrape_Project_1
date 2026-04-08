@@ -7,9 +7,17 @@ from pathlib import Path
 
 OUTPUT_FILE = "product_info.csv"
 BOOKSTORE_URL = "https://books.toscrape.com/index.html"
+DATA_DIR = Path("./data")
+CSV_DIR = DATA_DIR / "csv"
 
 
-def fetch_and_parse_product(url: str, image_folder: Path = Path("./images/")) -> dict | None:
+def ensure_data_folders() -> None:
+    """Ensure data output folders exist."""
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    CSV_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def fetch_and_parse_product(url: str, image_folder: Path = Path("./data/images/")) -> dict | None:
     page_content = scrap_product_page(url)
     if not page_content:
         return None
@@ -44,8 +52,7 @@ def scrape_category_to_csv(category_url: str, category_name: str) -> None:
     product_urls = scrape_category_products(category_url)
     for url in product_urls:
         product_info = fetch_and_parse_product(url)
-
-        append_product_info(product_info, category_name + ".csv")
+        append_product_info(product_info, f"./data/csv/{category_name}.csv")
 
 def scrape_all_categories_to_csv(first_category_url: str) -> None:
     category_page_content = scrap_product_page(first_category_url)
@@ -58,9 +65,14 @@ def scrape_all_categories_to_csv(first_category_url: str) -> None:
         scrape_category_to_csv(category_url, category_name)
 
 def main():
+    # Since the folders are hardcoded we ensure that they exists
+    ensure_data_folders()
     print("Starting the scrapping process...")
+    print("Scrapping a single product...")
     scrape_single_product(OUTPUT_FILE)
+    print("Scrapping a category...")
     scrape_category_to_csv(CATEGORY_URL, OUTPUT_FILE)
+    print("Scrapping all categories...")
     scrape_all_categories_to_csv(BOOKSTORE_URL)
     print("Scrapping completed successfully!")
 
