@@ -13,3 +13,5 @@ Python_P2_EN_Requirements.pdf
 *.csv
 images/
 data/
+*.pdf
+uv.lock

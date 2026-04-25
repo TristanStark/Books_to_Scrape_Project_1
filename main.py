@@ -5,7 +5,7 @@ from src.category_parser import CategoryParser, CATEGORY_URL
 from src.bookstore_parser import BookStoreParser
 from pathlib import Path
 
-OUTPUT_FILE = "product_info.csv"
+OUTPUT_FILE = "product_info"
 BOOKSTORE_URL = "https://books.toscrape.com/index.html"
 DATA_DIR = Path("./data")
 CSV_DIR = DATA_DIR / "csv"
@@ -34,6 +34,7 @@ def append_product_info(product_info: dict | None, filename: str) -> None:
 
 def scrape_single_product(filename: str) -> None:
     product_info = fetch_and_parse_product(product_url)
+    filename = f"./data/csv/{filename}.csv"
     append_product_info(product_info, filename)
     if product_info:
         print(f"Product information has been written to {filename}")
